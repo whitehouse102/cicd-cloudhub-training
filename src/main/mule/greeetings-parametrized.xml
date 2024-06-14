@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="a6cc3338-43d1-4fdc-87ab-117064f9bace" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="52fefa9f-df04-41a0-94ed-ef77c3bf408e" file="application.properties" />
+	<flow name="main" doc:id="466be897-3bd7-4a23-beab-d643009540dc" >
+		<http:listener doc:name="Listens GET /" doc:id="43d27c72-3a2e-439a-a469-8d58e7cf7155" config-ref="HTTP_Listener_config" path="/" allowedMethods="GET"/>
+		<set-variable value="${message}" doc:name="Set Var from property message" doc:id="b2aaccec-f7b0-42ad-93c1-3d16dc1afc47" variableName="welcomeMessage"/>
+		<ee:transform doc:name="Transform Message" doc:id="95b3b805-2701-445d-8288-71fcd0e35b97" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "Welcome " ++ (vars.welcomeMessage as String)
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logs headers in JSON format" doc:id="82d5f098-266c-431d-83de-9bfecb9a4f8b" message="#[message.attributes]" category="com.mulesoft.training.greetings"/>
+	</flow>
+</mule>
